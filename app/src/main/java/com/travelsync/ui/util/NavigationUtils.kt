@@ -6,13 +6,12 @@ import android.net.Uri
 import com.travelsync.core.domain.model.Place
 
 fun openPlaceInMaps(context: Context, place: Place) {
-    val query = if (place.latitude != 0.0 && place.longitude != 0.0) {
+    val query = if (place.hasCoordinates) {
         "${place.latitude},${place.longitude}(${Uri.encode(place.name)})"
     } else {
         Uri.encode("${place.name} ${place.address}")
     }
     val geoIntent = Intent(Intent.ACTION_VIEW, Uri.parse("geo:0,0?q=$query"))
-    geoIntent.setPackage("com.google.android.apps.maps")
     if (geoIntent.resolveActivity(context.packageManager) != null) {
         context.startActivity(geoIntent)
     } else {

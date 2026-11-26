@@ -150,7 +150,10 @@ data class Place(
     val externalLink: String? = null,
     val phone: String? = null,
     val isCatalog: Boolean = false
-)
+) {
+    /** 0.0, 0.0 is the stored default for a place without coordinates. */
+    val hasCoordinates: Boolean get() = latitude != 0.0 || longitude != 0.0
+}
 
 enum class ExpenseCategory {
     FOOD, TRANSPORT, ACCOMMODATION, ACTIVITIES, SHOPPING, EMERGENCY, OTHER

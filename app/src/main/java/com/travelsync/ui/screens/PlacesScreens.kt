@@ -8,6 +8,7 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -20,6 +21,7 @@ import com.travelsync.core.domain.model.Place
 import com.travelsync.core.domain.model.PlaceCategory
 import com.travelsync.ui.components.CategoryChip
 import com.travelsync.ui.components.GradientBackground
+import com.travelsync.ui.components.PlaceMap
 import com.travelsync.ui.components.TravelSyncTopBar
 import com.travelsync.ui.util.dialPhone
 import com.travelsync.ui.util.openExternalLink
@@ -37,10 +39,11 @@ fun PlacesScreen(
 ) {
     var selectedCategory by remember { mutableStateOf<PlaceCategory?>(null) }
     var placeForDayPicker by remember { mutableStateOf<Place?>(null) }
+    var showMap by remember { mutableStateOf(false) }
     val context = LocalContext.current
 
-    val filtered = places.filter { place ->
-        selectedCategory == null || place.category == selectedCategory
+    val filtered = remember(places, selectedCategory) {
+        places.filter { place -> selectedCategory == null || place.category == selectedCategory }
     }
 
     GradientBackground {
@@ -48,7 +51,15 @@ fun PlacesScreen(
             topBar = {
                 TravelSyncTopBar(
                     title = "Places near $destination",
-                    onBackClick = onBackClick
+                    onBackClick = onBackClick,
+                    actions = {
+                        IconButton(onClick = { showMap = !showMap }) {
+                            Icon(
+                                imageVector = if (showMap) Icons.AutoMirrored.Filled.List else Icons.Default.Map,
+                                contentDescription = if (showMap) "Show list" else "Show map"
+                            )
+                        }
+                    }
                 )
             },
             floatingActionButton = {
@@ -88,7 +99,9 @@ fun PlacesScreen(
                     }
                 }
 
-                if (filtered.isEmpty()) {
+                if (showMap) {
+                    PlaceMap(places = filtered, modifier = Modifier.fillMaxSize())
+                } else if (filtered.isEmpty()) {
                     Box(
                         modifier = Modifier.fillMaxSize(),
                         contentAlignment = Alignment.Center
